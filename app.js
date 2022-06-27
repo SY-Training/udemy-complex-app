@@ -13,4 +13,4 @@ app.set('view engine', 'ejs'); // setting a view engine for templates. Ejs is th
 
 app.use('/', router);
 
-app.listen(3000);
+module.exports = app;
