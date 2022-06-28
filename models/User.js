@@ -7,6 +7,9 @@ let User = function (data) {
   this.errors = [];
 };
 
+// User.prototype means all objects point back to this one instance. Soe there is only one instance of the method
+// in memory, which is more efficient as there won't be multiple instances of the same method.
+
 User.prototype.cleanUp = function () {
   if (typeof this.data.username != "string") {
     this.data.username = "";
@@ -23,11 +26,8 @@ User.prototype.cleanUp = function () {
   this.data = {
     username: this.data.username.trim().toLowerCase(), // .trim() removes white space.
     email: this.data.email.trim().toLowerCase(),
-    password: this.data.email,
+    password: this.data.password,
   };
-  console.log(
-    this.data.username + " " + this.data.email + " " + this.data.password
-  );
 };
 
 User.prototype.validate = function () {
@@ -49,6 +49,24 @@ User.prototype.validate = function () {
   if (this.data.password.length < 1 && this.data.password.length > 12) {
     this.errors.push("Password mut be between 1 and 12 characters.");
   }
+};
+
+User.prototype.login = function () {
+  return new Promise((resolve, reject) => {
+    this.cleanUp();
+    userCollection
+      .findOne({ username: this.data.username })
+      .then((attemptedUser) => {
+        if (attemptedUser && attemptedUser.password == this.data.password) {
+          resolve("contgrats");
+        } else {
+          reject("invalid password");
+        }
+      })
+      .catch(function () {
+        reject("please try again later.");
+      });
+  });
 };
 
 User.prototype.register = function () {
