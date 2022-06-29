@@ -8,6 +8,7 @@ exports.login = function (req, res) {
   user
     .login()
     .then(function (result) {
+      req.session.user = { username: user.data.username };
       res.send(result);
     })
     .catch(function (err) {
@@ -28,5 +29,9 @@ exports.register = (req, res) => {
 };
 
 exports.home = (req, res) => {
-  res.render("home-guest");
+  if (req.session.user) {
+    res.send("Welcome to the application");
+  } else {
+    res.render("home-guest");
+  }
 };
