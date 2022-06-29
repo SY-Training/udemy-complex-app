@@ -2,6 +2,9 @@ const express = require("express");
 const session = require("express-session");
 const mongoStore = require("connect-mongo");
 
+// Remember: POST and GET requests are initiated by a <form> element in the HTML files.
+// This is than handled by the router.
+
 const app = express();
 // boilerplate code in below object.
 let sessionOptions = session({
