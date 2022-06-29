@@ -30,7 +30,8 @@ exports.register = (req, res) => {
 
 exports.home = (req, res) => {
   if (req.session.user) {
-    res.send("Welcome to the application");
+    // Second argument is any just data which can be passed through
+    res.render("home-dashboard", { username: req.session.user.username });
   } else {
     res.render("home-guest");
   }

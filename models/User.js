@@ -1,5 +1,5 @@
 // Constructor function for new users.
-const userCollection = require("../db").collection("users");
+const userCollection = require("../db").db().collection("users");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 
