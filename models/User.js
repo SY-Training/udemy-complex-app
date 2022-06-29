@@ -1,6 +1,7 @@
 // Constructor function for new users.
 const userCollection = require("../db").collection("users");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 let User = function (data) {
   this.data = data;
@@ -57,7 +58,10 @@ User.prototype.login = function () {
     userCollection
       .findOne({ username: this.data.username })
       .then((attemptedUser) => {
-        if (attemptedUser && attemptedUser.password == this.data.password) {
+        if (
+          attemptedUser &&
+          bcrypt.compareSync(this.data.password, attemptedUser.password)
+        ) {
           resolve("contgrats");
         } else {
           reject("invalid password");
@@ -76,6 +80,9 @@ User.prototype.register = function () {
   // step 2 - only if there are no validation errors
   //          then save user data into DB.
   if (!this.errors.length) {
+    // has user password
+    let salt = bcrypt.genSaltSync(10);
+    this.data.password = bcrypt.hashSync(this.data.password, salt);
     userCollection.insertOne(this.data);
   }
 };
