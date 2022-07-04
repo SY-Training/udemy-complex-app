@@ -1,6 +1,7 @@
 // Controllers handles the functions used in a route.
 // It is much cleaner to do it this way than have a massive router page.
 
+const { serializeWithBufferAndIndex } = require("bson");
 const { response } = require("../app");
 const User = require("../models/User");
 
@@ -15,7 +16,10 @@ exports.login = (req, res) => {
       });
     })
     .catch(function (err) {
-      res.send(err);
+      req.flash("errors", err);
+      req.session.save(function () {
+        res.redirect("/");
+      });
     });
 };
 
@@ -39,6 +43,6 @@ exports.home = (req, res) => {
     // Second argument is any just data which can be passed through
     res.render("home-dashboard", { username: req.session.user.username });
   } else {
-    res.render("home-guest");
+    res.render("home-guest", { errors: req.flash("errors") });
   }
 };

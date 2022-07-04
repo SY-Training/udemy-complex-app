@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const mongoStore = require("connect-mongo");
+const flash = require("connect-flash");
 
 // Remember: POST and GET requests are initiated by a <form> element in the HTML files.
 // This is than handled by the router.
@@ -16,6 +17,7 @@ let sessionOptions = session({
 });
 
 app.use(sessionOptions);
+app.use(flash());
 
 const router = require("./router.js");
 
