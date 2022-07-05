@@ -30,18 +30,24 @@ exports.logout = async (req, res) => {
 
 exports.register = (req, res) => {
   let user = new User(req.body);
-  user.register();
-  if (user.errors.length) {
-    user.errors.forEach((err) => {
-      req.flash("regErrors", err); // First param is new array, second is item to push into array.
+  user
+    .register()
+    .then(() => {
+      req.session.user = { username: user.data.username };
+      req.session.save(() => {
+        //session.save will save session info, allowing for database queries to run.
+        res.redirect("/");
+      });
+    })
+    .catch((regErrors) => {
+      regErrors.forEach((err) => {
+        req.flash("regErrors", err); // First param is new array, second is item to push into array.
+      });
+      req.session.save(() => {
+        //session.save will save session info, allowing for database queries to run.
+        res.redirect("/");
+      });
     });
-    req.session.save(() => {
-      //session.save will save session info, allowing for database queries to run.
-      res.redirect("/");
-    });
-  } else {
-    res.send("There are no errors.");
-  }
 };
 
 exports.home = (req, res) => {

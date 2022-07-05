@@ -31,49 +31,52 @@ User.prototype.cleanUp = function () {
   };
 };
 
-User.prototype.validate = async function () {
-  if (this.data.username == "") {
-    this.errors.push("You must provide a username");
-  }
-  if (
-    this.data.username != "" &&
-    !validator.isAlphanumeric(this.data.username)
-  ) {
-    this.errors.push("Username can only contain letters and numbers");
-  }
-  if (!validator.isEmail(this.data.email)) {
-    this.errors.push("You must provide an email address");
-  }
-  if (this.data.password == "") {
-    this.errors.push("You must provide a password");
-  }
-  if (this.data.password.length < 1 && this.data.password.length > 12) {
-    this.errors.push("Password mut be between 1 and 12 characters.");
-  }
-
-  // Only if USERNAME is valid, then check to see if it's taken.
-  if (
-    this.data.username.length > 2 &&
-    this.data.username.length < 15 &&
-    validator.isAlphanumeric(this.data.username)
-  ) {
-    let usernameExists = await userCollection.findOne({
-      username: this.data.username,
-    });
-    if (usernameExists) {
-      this.errors.push("That username is already");
+User.prototype.validate = function () {
+  return new Promise(async (resolve, reject) => {
+    if (this.data.username == "") {
+      this.errors.push("You must provide a username");
     }
-  }
-
-  // Only if EMAIL is valid, then check to see if it's taken.
-  if (validator.isEmail(this.data.email)) {
-    let emailExists = await userCollection.findOne({
-      username: this.data.email,
-    });
-    if (emailExists) {
-      this.errors.push("That email is already");
+    if (
+      this.data.username != "" &&
+      !validator.isAlphanumeric(this.data.username)
+    ) {
+      this.errors.push("Username can only contain letters and numbers");
     }
-  }
+    if (!validator.isEmail(this.data.email)) {
+      this.errors.push("You must provide an email address");
+    }
+    if (this.data.password == "") {
+      this.errors.push("You must provide a password");
+    }
+    if (this.data.password.length < 1 && this.data.password.length > 12) {
+      this.errors.push("Password mut be between 1 and 12 characters.");
+    }
+
+    // Only if USERNAME is valid, then check to see if it's taken.
+    if (
+      this.data.username.length > 2 &&
+      this.data.username.length < 15 &&
+      validator.isAlphanumeric(this.data.username)
+    ) {
+      let usernameExists = await userCollection.findOne({
+        username: this.data.username,
+      });
+      if (usernameExists) {
+        this.errors.push("That username is already");
+      }
+    }
+
+    // Only if EMAIL is valid, then check to see if it's taken.
+    if (validator.isEmail(this.data.email)) {
+      let emailExists = await userCollection.findOne({
+        username: this.data.email,
+      });
+      if (emailExists) {
+        this.errors.push("That email is already");
+      }
+    }
+    resolve();
+  });
 };
 
 User.prototype.login = function () {
@@ -98,17 +101,23 @@ User.prototype.login = function () {
 };
 
 User.prototype.register = function () {
-  // step 1 - validate user data.
-  this.cleanUp();
-  this.validate();
-  // step 2 - only if there are no validation errors
-  //          then save user data into DB.
-  if (!this.errors.length) {
-    // has user password
-    let salt = bcrypt.genSaltSync(10);
-    this.data.password = bcrypt.hashSync(this.data.password, salt);
-    userCollection.insertOne(this.data);
-  }
+  return new Promise(async (resolve, reject) => {
+    // step 1 - validate user data.
+    this.cleanUp();
+    await this.validate(); // validate is wrapped in a promise so the async function inside of it can run.
+
+    // step 2 - only if there are no validation errors
+    //          then save user data into DB.
+    if (!this.errors.length) {
+      // has user password
+      let salt = bcrypt.genSaltSync(10);
+      this.data.password = bcrypt.hashSync(this.data.password, salt);
+      await userCollection.insertOne(this.data);
+      resolve();
+    } else {
+      reject(this.errors);
+    }
+  });
 };
 
 module.exports = User;
