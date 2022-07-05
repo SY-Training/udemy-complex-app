@@ -5,6 +5,17 @@ const { serializeWithBufferAndIndex } = require("bson");
 const { response } = require("../app");
 const User = require("../models/User");
 
+exports.mustBeLoggedIn = function (req, res, next) {
+  if (req.session.user) {
+    next(); // Next will call the next function in the route for "/create-post"
+  } else {
+    req.flash("errors", "You must be logged in to perform that action.");
+    req.session.save(function () {
+      res.redirect("/");
+    });
+  }
+};
+
 exports.login = (req, res) => {
   let user = new User(req.body, res);
   user
