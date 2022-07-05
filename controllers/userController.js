@@ -64,7 +64,7 @@ exports.register = (req, res) => {
 exports.home = (req, res) => {
   if (req.session.user) {
     // Second argument is any just data which can be passed through
-    res.render("home-dashboard", { username: req.session.user.username });
+    res.render("home-dashboard");
   } else {
     res.render("home-guest", {
       errors: req.flash("errors"),
