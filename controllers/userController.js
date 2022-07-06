@@ -21,7 +21,7 @@ exports.login = (req, res) => {
   user
     .login()
     .then(function (result) {
-      req.session.user = { username: user.data.username };
+      req.session.user = { username: user.data.username, _id: user.data._id };
       req.session.save(function () {
         res.redirect("/");
       });
@@ -44,7 +44,7 @@ exports.register = (req, res) => {
   user
     .register()
     .then(() => {
-      req.session.user = { username: user.data.username };
+      req.session.user = { username: user.data.username, _id: user.data._id };
       req.session.save(() => {
         //session.save will save session info, allowing for database queries to run.
         res.redirect("/");
