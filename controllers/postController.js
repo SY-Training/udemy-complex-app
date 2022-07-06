@@ -16,3 +16,12 @@ exports.create = (req, res) => {
       res.send(err);
     });
 };
+
+exports.viewSingle = async (req, res) => {
+  try {
+    let post = await Post.findSingleById(req.params.id);
+    res.render("single-post-screen", { post: post });
+  } catch (error) {
+    res.send("404 template will go here");
+  }
+};

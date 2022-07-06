@@ -1,3 +1,5 @@
+const { ObjectId } = require("mongodb");
+
 // See User.js for format comments.
 const postsCollection = require("../db").db().collection("posts"); // DB is a reusable file which uses the DB.
 // Adding the collection("posts") creates the DB automatically.
@@ -49,6 +51,23 @@ Post.prototype.create = function () {
         });
     } else {
       reject(this.errors);
+    }
+  });
+};
+
+// Find a post
+Post.findSingleById = function (id) {
+  return new Promise(async function (resolve, reject) {
+    if (typeof id !== "string" || !ObjectId.isValid(id)) {
+      // if typeof is not string, performs some validation checking.
+      reject();
+      return;
+    }
+    let post = await postsCollection.findOne({ _id: new ObjectId(id) });
+    if (post) {
+      resolve(post);
+    } else {
+      reject();
     }
   });
 };
