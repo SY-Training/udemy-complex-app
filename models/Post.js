@@ -63,9 +63,31 @@ Post.findSingleById = function (id) {
       reject();
       return;
     }
-    let post = await postsCollection.findOne({ _id: new ObjectId(id) });
-    if (post) {
-      resolve(post);
+    let posts = await postsCollection
+      .aggregate([
+        { $match: { _id: new objectID(id) } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "author",
+            foreignField: "_id",
+            as: "authorDocument",
+          },
+        },
+      ])
+      .toArray();
+
+    // clean up author property.
+    posts = posts.map((post) => {
+      post.author = {
+        username: post.author.username,
+      };
+      return post;
+    });
+
+    if (posts.length) {
+      console.log(posts[0]);
+      resolve(posts[0]);
     } else {
       reject();
     }
